@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 class JokeAdapter : RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
 
-    var listJokes = JokeManager.listJokes
+    var listJokes:List<Joke> = JokeManager.listJokesRaw.toJokeList()
         set(newListJokes) {
             field=newListJokes
             notifyDataSetChanged()
@@ -22,10 +22,15 @@ class JokeAdapter : RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: JokeViewHolder, position: Int) {
-        holder.joke.text = listJokes[position]
+        holder.joke.text = listJokes[position].value
     }
 
     class JokeViewHolder(val joke: TextView) : RecyclerView.ViewHolder(joke){
 
+    }
+
+
+    fun List<String>.toJokeList():List<Joke> {
+        return this.map { jokeString -> Joke(categories = emptyList(), createdAt = "", updatedAt = "", url = "", id = "", iconUrl = "", value = jokeString) }
     }
 }
