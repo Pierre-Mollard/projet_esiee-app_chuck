@@ -7,11 +7,16 @@ import androidx.recyclerview.widget.RecyclerView
 
 class JokeAdapter : RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
 
-    var listJokes:List<Joke> = JokeManager.listJokesRaw.toJokeList()
+    private var listJokes:MutableList<Joke> = mutableListOf<Joke>()
         set(newListJokes) {
             field=newListJokes
             notifyDataSetChanged()
         }
+
+    fun addJoke(pJoke: Joke){
+        listJokes.add(pJoke)
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JokeViewHolder {
         return JokeViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.my_textview, parent, false) as TextView)

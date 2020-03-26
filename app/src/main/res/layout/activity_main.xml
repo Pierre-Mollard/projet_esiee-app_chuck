@@ -8,12 +8,20 @@
         tools:context=".MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="395dp"
-            android:layout_height="618dp"
+            android:layout_width="389dp"
+            android:layout_height="0dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"
             android:id="@+id/recyclerView"
-            android:layout_marginTop="32dp" app:layout_constraintTop_toTopOf="parent" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            android:layout_marginTop="8dp" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/button" android:layout_marginBottom="8dp"/>
+    <Button
+            android:text="@string/bt_name_addjoke"
+            android:layout_width="162dp"
+            android:layout_height="88dp"
+            android:id="@+id/button" android:layout_marginBottom="28dp"
+            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp" android:onClick="onClickNewJoke" android:textSize="18sp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
