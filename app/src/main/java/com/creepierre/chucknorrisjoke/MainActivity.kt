@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -36,26 +37,34 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.adapter = adapter
 
-        newJoke()
+        newJoke(1)
     }
 
     fun onClickNewJoke(pView: View){
         Log.i("JOKEMANAGER", "Button clicked ! (id:${pView.id})")
-        newJoke()
+        newJoke(10)
     }
 
-    fun newJoke(){
-        val joke:Single<Joke> = jokeService.giveMeAJoke()
+    fun newJoke(n: Long){
+        Log.i("JOKEMANAGER", "new joke requested")
+        val joke: Single<Joke> = jokeService.giveMeAJoke()
         progressBarView?.visibility = View.VISIBLE
-        compositeDisposable.add(joke.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+        compositeDisposable.add(joke.repeat(n).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
-                onSuccess = { Log.i("JOKEMANAGER", "new joke from api : ${it.value}")
+                onComplete = {
+                    Log.i("JOKEMANAGER", "all jokes requested arrived")
+                    progressBarView?.visibility = View.INVISIBLE
+                    compositeDisposable.clear()
+                },
+                onError = {
+                    Log.e("JOKEMANAGER", "ERROR API")
+                    progressBarView?.visibility = View.INVISIBLE
+                    compositeDisposable.clear()
+                },
+                onNext = {
+                    Log.i("JOKEMANAGER", "new joke from api : ${it.value}")
                     adapter.addJoke(it)
-                    progressBarView?.visibility = View.INVISIBLE
-                    compositeDisposable.clear()},
-                onError = { Log.e("JOKEMANAGER", "ERROR API")
-                    progressBarView?.visibility = View.INVISIBLE
-                    compositeDisposable.clear()}
+                }
             ))
     }
 }
