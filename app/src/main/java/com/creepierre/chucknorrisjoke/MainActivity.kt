@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -19,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     val compositeDisposable:CompositeDisposable = CompositeDisposable()
     val jokeService:JokeApiService = JokeApiServiceFactory.createJokeApiService()
-    val adapter = JokeAdapter()
+    val adapter = JokeAdapter(pOnBottomReached = {newJoke(10)})
     var progressBarView:ProgressBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         //RecyclerView
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-
         progressBarView = findViewById<ProgressBar>(R.id.progressBar)
 
         recyclerView.adapter = adapter
@@ -42,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     fun onClickNewJoke(pView: View){
         Log.i("JOKEMANAGER", "Button clicked ! (id:${pView.id})")
-        newJoke(10)
+        newJoke(1)
     }
 
     fun newJoke(n: Long){

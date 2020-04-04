@@ -1,11 +1,14 @@
 package com.creepierre.chucknorrisjoke
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class JokeAdapter : RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
+class JokeAdapter(pOnBottomReached: (() -> Unit)) : RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
+
+    val onBottomReached: (() -> Unit) = pOnBottomReached
 
     private var listJokes:MutableList<Joke> = mutableListOf<Joke>()
         set(newListJokes) {
@@ -28,12 +31,15 @@ class JokeAdapter : RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
 
     override fun onBindViewHolder(holder: JokeViewHolder, position: Int) {
         holder.joke.text = listJokes[position].value
+        Log.i("JOKEMANAGER", "BIND VIEW ==== (pos:${position})")
+        if(listJokes.size > 4 && position == itemCount-1){
+            onBottomReached()
+        }
     }
 
     class JokeViewHolder(val joke: TextView) : RecyclerView.ViewHolder(joke){
 
     }
-
 
     fun List<String>.toJokeList():List<Joke> {
         return this.map { jokeString -> Joke(categories = emptyList(), createdAt = "", updatedAt = "", url = "", id = "", iconUrl = "", value = jokeString) }
