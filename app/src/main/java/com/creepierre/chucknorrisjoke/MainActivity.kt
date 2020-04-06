@@ -35,7 +35,18 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.adapter = adapter
 
-        newJoke(1)
+        if (savedInstanceState != null) {
+            adapter.unserializeList(list = savedInstanceState.getString("jokeList"))
+            Log.i("SERIALIZATION", "Reloaded successfully")
+        }else{
+            newJoke(1)
+        }
+    }
+
+    public override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("jokeList", adapter.serializeList())
+        Log.i("SERIALIZATION", "Loaded successfully")
+        super.onSaveInstanceState(outState)
     }
 
     fun onClickNewJoke(pView: View){

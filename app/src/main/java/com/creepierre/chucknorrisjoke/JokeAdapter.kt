@@ -5,10 +5,18 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.serialization.*
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.json.json
+import java.util.function.Consumer
 
 class JokeAdapter(pOnBottomReached: (() -> Unit)) : RecyclerView.Adapter<JokeAdapter.JokeViewHolder>() {
 
     val onBottomReached: (() -> Unit) = pOnBottomReached
+    @UseExperimental(kotlinx.serialization.ImplicitReflectionSerializer::class)
+    val serializer: KSerializer<List<Joke>> = Joke::class.serializer().list
 
     private var listJokes:MutableList<Joke> = mutableListOf<Joke>()
         set(newListJokes) {
@@ -43,5 +51,15 @@ class JokeAdapter(pOnBottomReached: (() -> Unit)) : RecyclerView.Adapter<JokeAda
 
     fun List<String>.toJokeList():List<Joke> {
         return this.map { jokeString -> Joke(categories = emptyList(), createdAt = "", updatedAt = "", url = "", id = "", iconUrl = "", value = jokeString) }
+    }
+
+    fun serializeList(): String{
+        return Json.stringify(serializer, listJokes)
+    }
+
+    fun unserializeList(list: String){
+        val listSerial = Json.parse(serializer, list)
+        listJokes.clear()
+        listSerial.forEach({ listJokes.add(it) })
     }
 }
