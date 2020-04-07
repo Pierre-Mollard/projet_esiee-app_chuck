@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     val compositeDisposable:CompositeDisposable = CompositeDisposable()
     val jokeService:JokeApiService = JokeApiServiceFactory.createJokeApiService()
-    val adapter = JokeAdapter(pOnBottomReached = {newJoke(10)})
+    val adapter = JokeAdapter(pOnBottomReached = {newJoke(10)}, pOnBTshareClicked = {onJokeShared(joke = it)}, pOnBTstarClicked = {onJokeStared(joke = it)})
     var progressBarView:ProgressBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         progressBarView = findViewById<ProgressBar>(R.id.progressBar)
 
         recyclerView.adapter = adapter
+        val jokeTouchHelper = JokeTouchHelper(onItemMoved = ::onItemMoved, onJokeRemoved = ::onJokeRemoved).attachToRecyclerView(recyclerView)
 
         if (savedInstanceState != null) {
             adapter.unserializeList(list = savedInstanceState.getString("jokeList"))
@@ -52,6 +53,25 @@ class MainActivity : AppCompatActivity() {
     fun onClickNewJoke(pView: View){
         Log.i("JOKEMANAGER", "Button clicked ! (id:${pView.id})")
         newJoke(1)
+    }
+
+    fun onJokeStared(joke: Joke){
+        Log.i("JOKEMANAGER", "Joke stared ! (id:${joke.id})")
+        joke.stared = !joke.stared
+    }
+
+    fun onJokeShared(joke: Joke){
+        Log.i("JOKEMANAGER", "Joke shared ! (id:${joke.id})")
+    }
+
+    fun onItemMoved(viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder){
+        Log.i("JOKEMANAGER", "item moved (wtf?)")
+        //dont know how to do it and what it means
+    }
+
+    fun onJokeRemoved(viewHolder: RecyclerView.ViewHolder){
+        val jokeViewHolder = viewHolder as JokeAdapter.JokeViewHolder
+        adapter.removeJoke(jokeViewHolder.jokeView.joke)
     }
 
     fun newJoke(n: Long){

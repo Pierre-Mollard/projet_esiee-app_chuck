@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Chuck Norris Joke</string>
     <string name="bt_name_addjoke">New Joke</string>
+    <string name="descr_star">Add this joke to your favorite list</string>
+    <string name="descr_share">Share this joke on social media</string>
 </resources>

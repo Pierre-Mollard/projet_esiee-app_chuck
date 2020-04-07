@@ -16,4 +16,5 @@ data class Joke(
     val url:String,
     val value:String
 ) {
+    var stared:Boolean = false
 }
