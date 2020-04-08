@@ -1,5 +1,6 @@
 package com.creepierre.chucknorrisjoke
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     val jokeService:JokeApiService = JokeApiServiceFactory.createJokeApiService()
     val adapter = JokeAdapter(pOnBottomReached = {newJoke(10)}, pOnBTshareClicked = {onJokeShared(joke = it)}, pOnBTstarClicked = {onJokeStared(joke = it)})
     var progressBarView:ProgressBar? = null
+    val prefsName = "Prefs_ChuckNorrisJoke"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +39,15 @@ class MainActivity : AppCompatActivity() {
         recyclerView.adapter = adapter
         val jokeTouchHelper = JokeTouchHelper(onItemMoved = ::onItemMoved, onJokeRemoved = ::onJokeRemoved).attachToRecyclerView(recyclerView)
 
+        //loads stared jokes
+        val prefs = applicationContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        prefs.all.forEach {
+            val staredJoke = Joke(emptyList(), "", "", it.key, "", "", it.value.toString())
+            staredJoke.stared = true
+            adapter.addJoke(staredJoke)
+        }
+
+        //loads already watched jokes
         if (savedInstanceState != null) {
             adapter.unserializeList(list = savedInstanceState.getString("jokeList"))
             Log.i("SERIALIZATION", "Reloaded successfully")
@@ -59,6 +70,12 @@ class MainActivity : AppCompatActivity() {
     fun onJokeStared(joke: Joke){
         Log.i("JOKEMANAGER", "Joke stared ! (id:${joke.id})")
         joke.stared = !joke.stared
+        val prefs = applicationContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+        if(joke.stared){
+            prefs.edit().putString(joke.id, joke.value).apply()
+        }else{
+            prefs.edit().remove(joke.id).apply()
+        }
     }
 
     fun onJokeShared(joke: Joke){

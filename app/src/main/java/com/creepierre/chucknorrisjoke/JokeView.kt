@@ -1,6 +1,7 @@
 package com.creepierre.chucknorrisjoke
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.ImageButton
@@ -25,17 +26,22 @@ class JokeView(context: Context) : @JvmOverloads ConstraintLayout(context){
         val textView : TextView = view.findViewById(R.id.textView)
         val starBT : ImageButton = view.findViewById(R.id.starBT)
         val shareBT : ImageButton = view.findViewById(R.id.shareBT)
+        val prefs = context.getSharedPreferences("Prefs_ChuckNorrisJoke", Context.MODE_PRIVATE)
 
         textView.text = joke.value
         shareBT.setOnClickListener { onBTshareClicked(joke) }
         starBT.setOnClickListener {
             onBTstarClicked(joke)
-            if(joke.stared){
-                starBT.setImageResource(R.drawable.ic_star_on)
-            }else{
-                starBT.setImageResource(R.drawable.ic_star_off)
-            }
+            checkStar(prefs, starBT)
         }
+        checkStar(prefs, starBT)
     }
 
+    fun checkStar(prefs: SharedPreferences, starBT: ImageButton){
+        if(prefs.contains(joke.id)){
+            starBT.setImageResource(R.drawable.ic_star_on)
+        }else{
+            starBT.setImageResource(R.drawable.ic_star_off)
+        }
+    }
 }
