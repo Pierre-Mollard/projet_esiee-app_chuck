@@ -1,5 +1,6 @@
 package com.creepierre.chucknorrisjoke
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -61,6 +62,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onJokeShared(joke: Joke){
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, joke.value)
+            type = "text/plain"
+        }
+        val shareIntent = Intent.createChooser(sendIntent, "Joke from Chuck Norris API")
+        startActivity(shareIntent)
         Log.i("JOKEMANAGER", "Joke shared ! (id:${joke.id})")
     }
 
