@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.rxkotlin.subscribeBy
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     val jokeService:JokeApiService = JokeApiServiceFactory.createJokeApiService()
     val adapter = JokeAdapter(pOnBottomReached = {newJoke(10)}, pOnBTshareClicked = {onJokeShared(joke = it)}, pOnBTstarClicked = {onJokeStared(joke = it)})
     var progressBarView:ProgressBar? = null
+    val swipeRefreshLayout:SwipeRefreshLayout? = null
     val prefsName = "Prefs_ChuckNorrisJoke"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,6 +40,14 @@ class MainActivity : AppCompatActivity() {
 
         recyclerView.adapter = adapter
         val jokeTouchHelper = JokeTouchHelper(onItemMoved = ::onItemMoved, onJokeRemoved = ::onJokeRemoved).attachToRecyclerView(recyclerView)
+
+        //SwipeRefreshLayout to RecyclerView
+        val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout)
+        swipeRefreshLayout.setOnRefreshListener {
+            newJoke(10)
+        }
+        swipeRefreshLayout.setColorSchemeColors(getResources().getColor(android.R.color.holo_red_dark),
+            getResources().getColor(android.R.color.holo_green_dark), getResources().getColor(android.R.color.holo_blue_dark))
 
         //loads stared jokes
         val prefs = applicationContext.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
@@ -102,17 +112,15 @@ class MainActivity : AppCompatActivity() {
     fun newJoke(n: Long){
         Log.i("JOKEMANAGER", "new joke requested")
         val joke: Single<Joke> = jokeService.giveMeAJoke()
-        progressBarView?.visibility = View.VISIBLE
+
         compositeDisposable.add(joke.repeat(n).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onComplete = {
                     Log.i("JOKEMANAGER", "all jokes requested arrived")
-                    progressBarView?.visibility = View.INVISIBLE
                     compositeDisposable.clear()
                 },
                 onError = {
                     Log.e("JOKEMANAGER", "ERROR API")
-                    progressBarView?.visibility = View.INVISIBLE
                     compositeDisposable.clear()
                 },
                 onNext = {
