@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         val swipeRefreshLayout = findViewById<SwipeRefreshLayout>(R.id.swipeRefreshLayout)
         swipeRefreshLayout.setOnRefreshListener {
             newJoke(10)
+            swipeRefreshLayout.isRefreshing = false
         }
         swipeRefreshLayout.setColorSchemeColors(getResources().getColor(android.R.color.holo_red_dark),
             getResources().getColor(android.R.color.holo_green_dark), getResources().getColor(android.R.color.holo_blue_dark))
@@ -64,6 +65,12 @@ class MainActivity : AppCompatActivity() {
         }else{
             newJoke(1)
         }
+    }
+
+    //making sure we have no leaks
+    override fun onPause() {
+        super.onPause()
+        compositeDisposable.clear()
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
@@ -112,15 +119,17 @@ class MainActivity : AppCompatActivity() {
     fun newJoke(n: Long){
         Log.i("JOKEMANAGER", "new joke requested")
         val joke: Single<Joke> = jokeService.giveMeAJoke()
-
+        progressBarView?.visibility = View.VISIBLE
         compositeDisposable.add(joke.repeat(n).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
             .subscribeBy(
                 onComplete = {
                     Log.i("JOKEMANAGER", "all jokes requested arrived")
+                    progressBarView?.visibility = View.INVISIBLE
                     compositeDisposable.clear()
                 },
                 onError = {
                     Log.e("JOKEMANAGER", "ERROR API")
+                    progressBarView?.visibility = View.INVISIBLE
                     compositeDisposable.clear()
                 },
                 onNext = {
